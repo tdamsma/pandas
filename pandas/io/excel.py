@@ -2009,23 +2009,26 @@ class _XlsxWriter(ExcelWriter):
         if _validate_freeze_panes(freeze_panes):
             wks.freeze_panes(*(freeze_panes))
 
+        n_cols = 0
+        n_rows = 0
         for cell in cells:
             val, fmt = self._value_with_fmt(cell.val)
             wks.write(startrow + cell.row,
                       startcol + cell.col,
                       val)
+            n_cols = max(n_cols, cell.col)
+            n_rows = max(n_rows, cell.row)
+            
+        headers = {cell.col: cell.val for cell in header}
 
-        print(self.__dict__)
-        n_cols = len(df.columns)
-        n_rows = len(df)
-        options = {
-            # 'data': df.values.tolist(),
-            # 'columns': [{'header': col} for col in df.columns]
-            'columns': [{'header': cell.val} for cell in header]
-            }
+        # add generic name for every unnamed index column that is included
+        columns = [{'header': headers[col] if col in headers else f'index{col}'}
+                   for col in range(n_cols + 1)]
+
+        options = {'columns': columns}
 
         wks.add_table(startrow, startcol, startrow + n_rows,
-                      startcol + n_cols - 1, options)
+                      startcol + n_cols, options)
 
 
 register_writer(_XlsxWriter)
