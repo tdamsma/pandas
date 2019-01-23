@@ -1993,4 +1993,39 @@ class _XlsxWriter(ExcelWriter):
                           val, style)
 
 
+    def write_table(self, cells, sheet_name=None, startrow=0, startcol=0,
+                    freeze_panes=None, df=None, header=None):
+        # Write the frame to an excel table using xlsxwriter.
+        sheet_name = self._get_sheet_name(sheet_name)
+
+        if sheet_name in self.sheets:
+            wks = self.sheets[sheet_name]
+        else:
+            wks = self.book.add_worksheet(sheet_name)
+            self.sheets[sheet_name] = wks
+
+        style_dict = {'null': None}
+
+        if _validate_freeze_panes(freeze_panes):
+            wks.freeze_panes(*(freeze_panes))
+
+        for cell in cells:
+            val, fmt = self._value_with_fmt(cell.val)
+            wks.write(startrow + cell.row,
+                      startcol + cell.col,
+                      val)
+
+        print(self.__dict__)
+        n_cols = len(df.columns)
+        n_rows = len(df)
+        options = {
+            # 'data': df.values.tolist(),
+            # 'columns': [{'header': col} for col in df.columns]
+            'columns': [{'header': cell.val} for cell in header]
+            }
+
+        wks.add_table(startrow, startcol, startrow + n_rows,
+                      startcol + n_cols - 1, options)
+
+
 register_writer(_XlsxWriter)
