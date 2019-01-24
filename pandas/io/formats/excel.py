@@ -660,14 +660,13 @@ class ExcelFormatter(object):
             writer = ExcelWriter(_stringify_path(writer), engine=engine)
             need_save = True
 
+        formatted_cells = self.get_formatted_cells()
         if as_table:
-            formatted_cells = self.get_formatted_cells(include_header=False)
             writer.write_table(formatted_cells, sheet_name,
                                startrow=startrow, startcol=startcol,
                                freeze_panes=freeze_panes,
-                               header=self._format_header())
-        else:
-            formatted_cells = self.get_formatted_cells()
+                               header=self.header)
+        else:            
             writer.write_cells(formatted_cells, sheet_name,
                                startrow=startrow, startcol=startcol,
                                freeze_panes=freeze_panes)
