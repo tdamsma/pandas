@@ -1108,7 +1108,7 @@ class DataFrame(NDFrame):
         if orient == 'index':
             if len(data) > 0:
                 # TODO speed up Series case
-                if isinstance(list(data.values())[0], (Series, dict)):
+                if isinstance(list(data.values())[0], Series):
                     data = _from_nested_dict(data)
                 else:
                     data, index = list(data.values()), list(data.keys())
